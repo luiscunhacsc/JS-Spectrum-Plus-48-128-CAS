@@ -84,7 +84,7 @@ test('quadratic solving and factorization produce exact real answers', () => {
 test('substitution preserves undefined input domains; ans survives errors and clear resets it', () => {
     const cas = createSession();
     assert.equal(cas.run('subst(x^2+1,x,3)').result, '10');
-    assert.throws(() => cas.run('subst(x/x,x,0)'), /Zero|zero/);
+    assert.throws(() => cas.run('subst(x/x,x,0)'), /Domain condition|Zero|zero/);
     assert.equal(cas.run('ans+1').result, '11');
     assert.equal(cas.run('integrate(sin(x+1),x)').result, '-cos(x+1)+C');
     assert.equal(cas.run('diff(ans,x)').result, 'sin(x+1)');

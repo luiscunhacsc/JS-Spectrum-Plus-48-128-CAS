@@ -25,7 +25,7 @@ window.createSpectrumCalculator = function (options) {
         Calc: [['Integrate', 'integral(□,x)'], ['Differentiate', 'diff(□,x)'], ['Integral from 0 to pi', 'integral(□,x,0,pi)'], ['Sine', 'sin(□)'], ['Cosine', 'cos(□)'], ['Natural logarithm', 'ln(□)'], ['Exponential', 'exp(□)'], ['Square root', 'sqrt(□)']],
         Other: [['Worked examples', 'examples'], ['Syntax and supported rules', 'help'], ['Numeric approximation', 'approx(□)']],
         PrgmIO: [['Recall previous answer', 'answer'], ['Clear history and ans', 'clear'], ['Syntax and supported rules', 'help']],
-        Examples: [['Substitution: sin(x+1)', example], ['Chain substitution', 'integrate(2*x*cos(x^2),x)'], ['Integration by parts', 'integrate(x*exp(x),x)'], ['Definite integral', 'integrate(sin(x),x,0,pi)'], ['Chain rule', 'diff(sin(x^2),x)'], ['Quadratic equation', 'solve(x^2-5*x+6=0,x)'], ['Expand a polynomial', 'expand((x+1)^3)'], ['Exact fractions', '1/3+1/6']]
+        Examples: [['Substitution: sin(x+1)', example], ['Chain substitution', 'integrate(2*x*cos(x^2),x)'], ['Integration by parts', 'integrate(x*exp(x),x)'], ['Definite integral', 'integrate(sin(x),x,0,pi)'], ['Chain rule', 'diff(sin(x^2),x)'], ['Quadratic equation', 'solve(x^2-5*x+6=0,x)'], ['Expand a polynomial', 'expand((x+1)^3)'], ['Exact fractions', '1/3+1/6'], ['Partial fractions', 'integral(1/(x^2+1),x)'], ['Trig power reduction', 'integral(sin(x)^2,x)'], ['Symbolic coefficient', 'integral(sin(a*x),x)'], ['Cancel rational factors', 'simplify((x^2-1)/(x-1))']]
     };
     const tabs = [
         { name: 'Tools', col: 0, width: 6 },
@@ -105,7 +105,7 @@ window.createSpectrumCalculator = function (options) {
             put(4, 1, activeMenu.toUpperCase());
             for (const [i, [label]] of menus[activeMenu].entries())
                 put(6 + i, 0, `${i + 1} ${label}`.padEnd(32), i === selectedItem ? 7 : 0, i === selectedItem ? 0 : 7);
-            put(17, 0, 'ENTER selects. ESC returns.');
+            put(18, 0, 'ENTER selects. ESC returns.');
         } else {
             for (let row = 0; row < VIEW_ROWS; row++) {
                 const item = content[scroll + row];
@@ -159,6 +159,8 @@ window.createSpectrumCalculator = function (options) {
             latestRow = content.length;
             content.push(...wrap(entry.input, 0, entry.input));
             content.push(...wrap(entry.error ? 'Error: ' + entry.result : ascii(entry.result).padStart(32), 0, entry.input));
+            if (entry.conditions?.length) content.push(...wrap('Domain: ' + entry.conditions.join('; '), 0, entry.input));
+            if (!showSteps && entry.verification) content.push(...wrap(entry.verified ? 'Verified symbolically.' : 'Equality not proved.', 0, entry.input));
             if (entry.help) for (const paragraph of entry.help) content.push(line(), ...wrap(paragraph));
             if (showSteps) for (const [i, s] of entry.steps.entries()) {
                 content.push(line(), ...wrap(`${i + 1}. ${s.title}`, 0, entry.input), ...wrap(s.math, 0, entry.input));
@@ -174,11 +176,11 @@ window.createSpectrumCalculator = function (options) {
         entries.push({ input: 'Help', result: 'Syntax and supported rules', steps: [], help: [
             'Use + - * / ^, parentheses. 2x means 2*x. Constants: pi, e. Angles are radians.',
             'integral(f,x) or integrate(f,x) gives an antiderivative plus C. ans recalls the expression without C.',
-            'Integration: sums, powers, reciprocals; sin/cos/exp/tan/ln/sqrt with numeric affine arguments; matched substitutions; polynomial times sin/cos/exp by parts.',
+            'Integration: rational functions by division and partial fractions; trig powers/products; affine arguments with symbolic coefficients; substitution and integration by parts.',
             'integrate(f,x,a,b) applies bounds on certified continuous intervals. No improper integrals.',
-            'diff(f,x), simplify(f), expand(f), solve(equation,x), factor(f,x), subst(f,x,value), approx(f).',
+            'diff(f,x), simplify(f), expand(f), solve(equation,x), factor(f,x), subst(f,x,value), approx(f), verify(F,f,x).',
             'solve: numeric linear/quadratic polynomials over the reals. factor: rational quadratics. Functions also include asin, acos, atan, abs.',
-            'Results hold where the input and applied rules are defined. Unsupported rules produce an explanation.',
+            'Domain conditions remain visible when steps are hidden and survive ans recall. Integral answers require an exact symbolic derivative identity. verify(F,f,x) checks dF/dx=f; Not proved means no proof was established.',
             'F1 Tools. F2 Algebra. F3 Calculus. F4 Other/examples. F5 PrgmIO. F6 Steps. Click the top menu names or use keys 1-9 in a menu.',
             'PgUp/PgDn or mouse wheel: scroll working. Up/Down: command history. Ctrl+Enter: approximate. ESC: clear entry, then return to the Spectrum menu.'
         ] });
@@ -229,7 +231,7 @@ window.createSpectrumCalculator = function (options) {
         commandIndex = commands.length; draft = ''; input.value = result.error ? source : '';
         input.setSelectionRange?.(input.value.length, input.value.length);
         rebuildHistory(!result.error);
-        announcement.textContent = result.error ? `Cannot evaluate: ${result.result}` : `Result: ${result.result}`;
+        announcement.textContent = result.error ? `Cannot evaluate: ${result.result}` : `Result: ${result.result}${result.conditions?.length ? '. Domain: ' + result.conditions.join('; ') : ''}`;
         focus(); return result;
     }
     function toggleSteps() {

@@ -114,3 +114,17 @@ test('errors use a pixel dialog, preserve the expression, and can be dismissed',
     e.key('Escape');
     assert.equal(e.evaluate('calculatorActive'), false);
 });
+
+test('domain conditions and verification stay visible with working hidden', async () => {
+    const e = await start();
+    enter(e, 'integral(sin(a*x),x)'); e.key('Enter'); e.key('F6');
+    let visible = screenText(e).slice(3, 19).join('\n');
+    assert.match(visible, /Domain: a!=0/);
+    assert.match(visible, /Verified symbolically/);
+    assert.doesNotMatch(visible, /Substitution/);
+    enter(e, 'simplify((x^2-1)\/(x-1))'); e.key('Enter');
+    visible = screenText(e).slice(3, 19).join('\n');
+    assert.match(visible, /x\+1/); assert.match(visible, /Domain: x-1!=0/);
+    e.key('F4'); e.key('Digit1'); e.key('ArrowUp'); e.key('Enter');
+    assert.equal(e.elements.get('casInput').value, 'simplify((x^2-1)/(x-1))');
+});

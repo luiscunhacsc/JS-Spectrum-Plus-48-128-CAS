@@ -48,12 +48,19 @@ Enter again to try the prefilled `integral(sin(x+1),x)` example: the answer is
 
 The calculator runs entirely offline. It supports exact fractions, symbolic
 arithmetic, differentiation, a growing set of integration rules, polynomial
-expansion, and linear/quadratic equation solving. **F4 / Other → Worked examples**
+expansion, and linear/quadratic equation solving. Rational simplification retains
+cancelled denominator restrictions; integration now includes partial fractions,
+trigonometric powers/products, and symbolic coefficients. Each returned
+antiderivative must pass an exact symbolic derivative identity check.
+**F4 / Other → Worked examples**
 provides more examples; **F1 / Tools** includes syntax and the supported rules.
 **F6 / Steps** toggles the working. Page Up/Down or the mouse wheel scrolls it.
 Up/Down recalls previous commands. Both `integral(...)` and `integrate(...)`
 are accepted. Use
 `ans` for the previous expression result (without the integration constant).
+Domain conditions such as `a!=0` stay visible with the steps hidden and are
+retained by `ans`. `verify(F,f,x)` checks whether `dF/dx=f`; an unsuccessful check
+reports **Not proved**, without claiming mathematical equivalence.
 Press **Esc** to clear the entry, then **Esc** again to return to the 128K menu;
 history stays available until
 the page is reloaded or you clear it.
