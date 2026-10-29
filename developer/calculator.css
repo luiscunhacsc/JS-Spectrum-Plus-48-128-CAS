@@ -1,0 +1,13 @@
+/* All visible CAS pixels are drawn on #screen with the Spectrum ROM font.
+   Keep native text editing and screen-reader controls available offscreen. */
+.calculator {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+.calculator input { font-size: 16px; }
